@@ -62,6 +62,31 @@ void lag::multiplyMx(const Dmatrixf &a, const Dmatrixf &b, Dmatrixf &c)
     }
 }
 
+void lag::multiplyMxPartial(const Dmatrixf &a, const Dmatrixf &b, Dmatrixf &c, const MxChunk &chunk)
+{
+    if(b.h != a.w) return;
+
+    if(c.w != b.w || c.h != a.h){
+        c.reSize(b.w, a.h);
+    }
+
+    if(chunk.x_end >= c.w || chunk.y_end >= c.h) return;
+
+    for(int i = chunk.x_start; i < chunk.x_end; ++i){
+        for(int j = chunk.y_start; j < chunk.y_end; ++j){
+            float sum = 0.0f;
+
+            for(int k = 0; k < a.w; ++k){
+                float av = a.getValue(k, i);
+                float bv = b.getValue(j, k);
+                sum += av * bv;
+            }
+
+            c.setValue(i, j, sum);
+        }
+    }
+}
+
 void lag::prontMatrix(const float (&matrix)[4][4])
 {
     #ifdef DEBUG

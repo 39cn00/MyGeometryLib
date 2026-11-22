@@ -322,6 +322,15 @@ namespace lag{
 
     void multiplyMx(const Dmatrixf & a, const Dmatrixf & b, Dmatrixf & c);
 
+    struct MxChunk{
+        int x_start;
+        int y_start;
+
+        int x_end;
+        int y_end;
+    };
+    void multiplyMxPartial(const Dmatrixf & a, const Dmatrixf & b, Dmatrixf & c, const MxChunk & chunk);
+
     void prontMatrix(const float (&matrix)[4][4]);
     void prontMatrix(const mat3 & matrix);
     void prontMatrix(const Dmatrixf & matrix);
