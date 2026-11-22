@@ -291,6 +291,28 @@ namespace lag{
 
         float getValuef(float x, float y);
     };
+
+    struct Dmatrixf
+    {
+        size_t w = 0;
+        size_t h = 0;
+
+        float * mxData = nullptr;
+
+        ~Dmatrixf(){delete[]  mxData;}
+
+        void newMatrix(size_t width, size_t height);
+        void reSize(size_t width, size_t height);
+
+        float getValue(unsigned int x, unsigned int y)const;
+        void setValue(unsigned int x, unsigned int y, float v);
+
+        inline float fgetValue(unsigned int x, unsigned int y)const {    return *(this->mxData + (this->w * y + x));}
+        inline void fsetValue(unsigned int x, unsigned int y, float v){    *(this->mxData + (this->w * y + x)) = v;}
+    
+        void loadTestValues();
+    };
+    
     
 
     //typedef mat3f float[3][3];
@@ -298,8 +320,11 @@ namespace lag{
     void fastMultiply(float (&mA)[4][4], float (&matB)[4][4], float (&mC)[4][4]);
     void fastMultiply(mat3 & mA, mat3 & mB, mat3 & mC);
 
+    void multiplyMx(const Dmatrixf & a, const Dmatrixf & b, Dmatrixf & c);
+
     void prontMatrix(const float (&matrix)[4][4]);
     void prontMatrix(const mat3 & matrix);
+    void prontMatrix(const Dmatrixf & matrix);
 
     void makeIdentityMatrix(float(&matrix)[4][4]);
     void makeIdentityMatrix(mat3 & matrix);

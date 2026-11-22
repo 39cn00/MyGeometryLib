@@ -39,6 +39,29 @@ void lag::fastMultiply(mat3 &mA, mat3 &mB, mat3 &mC)
     mC[2][2] = (mA[2][0] * mB[0][2]) + (mA[2][1] * mB[1][2]) + (mA[2][2] * mB[2][2]);
 }
 
+void lag::multiplyMx(const Dmatrixf &a, const Dmatrixf &b, Dmatrixf &c)
+{
+    if(b.h != a.w) return;
+
+    if(c.w != b.w || c.h != a.h){
+        c.reSize(b.w, a.h);
+    }
+
+    for(int i = 0; i < c.w; ++i){
+        for(int j = 0; j < c.h; ++j){
+            float sum = 0.0f;
+
+            for(int k = 0; k < a.w; ++k){
+                float av = a.getValue(k, i);
+                float bv = b.getValue(j, k);
+                sum += av * bv;
+            }
+
+            c.setValue(i, j, sum);
+        }
+    }
+}
+
 void lag::prontMatrix(const float (&matrix)[4][4])
 {
     #ifdef DEBUG
@@ -63,6 +86,17 @@ void lag::prontMatrix(const mat3 & matrix)
             printf("|\n");
         }
     //#endif
+}
+
+void lag::prontMatrix(const Dmatrixf &matrix)
+{
+    for(int i = 0; i < matrix.w; ++i){
+        printf("| ");
+        for(int j = 0; j < matrix.h; ++j){
+            printf(" %.1f ", matrix.getValue(i, j));
+        }
+        printf("|\n");
+    }
 }
 
 void lag::makeIdentityMatrix(float (&matrix)[4][4])
@@ -391,4 +425,55 @@ float lag::PerlinNoice::getValuef(float x, float y)
     float y_value = interpolSquare(ab_value, cd_value, (point.y - a.base.y) / (c.base.y - a.base.y));
 
     return y_value;
+}
+
+void lag::Dmatrixf::newMatrix(size_t width, size_t height)
+{
+    this->mxData = new float[width * height];
+
+    this->w = width;
+    this->h = height;
+}
+
+void lag::Dmatrixf::reSize(size_t width, size_t height)
+{
+    delete[] this->mxData;
+    this->newMatrix(width, height);
+}
+
+float lag::Dmatrixf::getValue(unsigned int x, unsigned int y) const 
+{
+    if(x >= this->w || y >= this->h){
+        return NAN;
+    }
+    
+    return *(this->mxData + (this->w * y + x));
+}
+
+void lag::Dmatrixf::setValue(unsigned int x, unsigned int y, float v)
+{
+    if(x >= this->w || y >= this->h){
+        return;
+    }
+
+    *(this->mxData + (this->w * y + x)) = v;
+}
+
+void lag::Dmatrixf::loadTestValues()
+{
+    float *beg = this->mxData;
+    float *end = beg + this->w * this->h;
+
+    float l = 1.0f, n = 1.0f;
+
+    for(; beg < end; ++beg){
+        *beg = l + n;
+        l = n;
+        n = *beg;
+
+        if(n > 1e10){
+            n -= 0.9f * n;
+            l = n;
+        }
+    }
 }
